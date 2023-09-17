@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
@@ -24,6 +25,7 @@ func Init(autoMigrate bool) {
 		return
 	}
 	dsn := config.GetDatabaseDSN(config.C.DB.Host)
+	fmt.Println("dsn config ", dsn)
 	var err error
 
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -31,7 +33,7 @@ func Init(autoMigrate bool) {
 		l.Fatalf("Error when opening DB: %s\n", err.Error())
 	}
 
-	if (autoMigrate) {
+	if autoMigrate {
 		err = DB.AutoMigrate(
 			&Proof{},
 			&ProofChain{},

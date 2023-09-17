@@ -19,6 +19,11 @@ var Platforms = struct {
 	Steam       Platform
 	ActivityPub Platform
 	Slack       Platform
+	Data2Cash   Platform
+	Email       Platform
+	WeChat      Platform
+	FaceBook    Platform
+	Lens        Platform
 }{
 	Github:      "github",
 	NextID:      "nextid",
@@ -35,4 +40,9 @@ var Platforms = struct {
 	Steam:       "steam",
 	ActivityPub: "activitypub",
 	Slack:       "slack",
+	Data2Cash:   "data2cash",
+	Email:       "email",
+	WeChat:      "wechat",
+	FaceBook:    "facebook",
+	Lens:        "Lens",
 }

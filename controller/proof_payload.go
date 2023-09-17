@@ -20,17 +20,24 @@ type ProofPayloadRequest struct {
 	Identity  string                   `json:"identity"`
 	PublicKey string                   `json:"public_key"`
 	Extra     ProofPayloadRequestExtra `json:"extra"`
+	IsPrivacy bool                     `json:"is_privacy"`
+	IsText    bool                     `form:"is_text,default=false"`
 }
 
 type ProofPayloadResponse struct {
+	//Post (in different languages) to let user send / save to target platform
 	PostContent map[string]string `json:"post_content"`
-	SignPayload string            `json:"sign_payload"`
-	Uuid        string            `json:"uuid"`
-	CreatedAt   string            `json:"created_at"`
+	//Raw string to be sent to personal_sign
+	SignPayload string `json:"sign_payload"`
+	//UUID of this chain link. Send this UUID to POST /v1/proof as-is.
+	Uuid      string `json:"uuid"`
+	CreatedAt string `json:"created_at"`
 }
 
 type ProofPayloadRequestExtra struct {
 	EthereumWalletSignature string `json:"wallet_signature"`
+	//use for End-to-end encryption data
+	DataSecretKey string `json:"data_secret_key"`
 }
 
 func proofPayload(c *gin.Context) {

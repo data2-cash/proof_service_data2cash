@@ -13,11 +13,13 @@ import (
 func Test_proofPayload(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		before_each(t)
+		pk, _ := crypto.GenerateKeypair()
+		pkstr := "0x" + crypto.CompressedPubkeyHex(pk)
 		req := ProofPayloadRequest{
 			Action:    "create",
 			Platform:  "twitter",
 			Identity:  "yeiwb",
-			PublicKey: "0x028c3cda474361179d653c41a62f6bbb07265d535121e19aedf660da2924d0b1e3",
+			PublicKey: pkstr,
 		}
 		resp := ProofPayloadResponse{}
 		APITestCall(Engine, "POST", "/v1/proof/payload", &req, &resp)

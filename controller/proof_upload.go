@@ -25,6 +25,8 @@ type ProofUploadRequest struct {
 	Uuid          string                  `json:"uuid"`
 	CreatedAt     string                  `json:"created_at"`
 	Extra         ProofUploadRequestExtra `json:"extra"`
+	Source        string                  `json:"source"`
+	IsPrivacy     bool                    `json:"is_privacy"`
 }
 
 type ProofUploadRequestExtra struct {
@@ -54,22 +56,34 @@ func proofUpload(c *gin.Context) {
 	}
 
 	validator, err := validateProof(req, previous_pc, pubkey)
+	// secret  identity public_key platform
 	if err != nil {
 		errorResp(c, 400, xerrors.Errorf("%w", err))
 		return
 	}
-
+	if req.IsPrivacy {
+		validator, err = encryptionValidator(&validator, req, pubkey)
+	}
+	// local DB just for update do not need to secret
 	if err = applyUpload(&validator); err != nil {
 		errorResp(c, 400, xerrors.Errorf("%w", err))
 		return
 	}
 
-	if err = triggerArweave(model.MarshalPersona(pubkey)); err != nil {
-		// Do not errorResp here, since it is a tolerable error.
-		l.Warnf("error sending arweave upload message: %v", err)
+	if req.Source == "data2cash" {
+		//update to ceramic TODO
+	} else {
+		if err = triggerArweave(model.MarshalPersona(pubkey)); err != nil {
+			// Do not errorResp here, since it is a tolerable error.
+			l.Warnf("error sending arweave upload message: %v", err)
+		}
 	}
 
 	c.JSON(http.StatusCreated, gin.H{})
+}
+func encryptionValidator(validator *validator.Base, req ProofUploadRequest, pubkey *ecdsa.PublicKey) (validator.Base, error) {
+	//TODO
+	return *validator, nil
 }
 
 func validateProof(req ProofUploadRequest, prev *model.ProofChain, pubkey *ecdsa.PublicKey) (validator.Base, error) {

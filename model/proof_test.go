@@ -71,6 +71,15 @@ func Test_Proof_Revalidate(t *testing.T) {
 	// })
 }
 
+func Text_StringtoPk(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		pk, err := crypto.StringToPubkey("0x04666b700aeb6a6429f13cbb263e1bc566cd975a118b61bc796204109c1b351d19b7df23cc47f004e10fef41df82bad646b027578f8881f5f1d2f70c80dfcd8031")
+		require.Nil(t, err)
+		require.NotNil(t, pk)
+	})
+
+}
+
 func Test_FindAllProofByPersona(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		before_each(t)
