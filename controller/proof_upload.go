@@ -25,13 +25,14 @@ type ProofUploadRequest struct {
 	Uuid          string                  `json:"uuid"`
 	CreatedAt     string                  `json:"created_at"`
 	Extra         ProofUploadRequestExtra `json:"extra"`
-	Source        string                  `json:"source"`
-	IsPrivacy     bool                    `json:"is_privacy"`
 }
 
 type ProofUploadRequestExtra struct {
 	Signature               string `json:"signature"`
 	EthereumWalletSignature string `json:"wallet_signature"`
+	Source                  string `json:"source"`
+	IsPrivacy               bool   `json:"is_privacy"`
+	Storage                 string `json:"storage"`
 }
 
 func proofUpload(c *gin.Context) {
@@ -56,12 +57,14 @@ func proofUpload(c *gin.Context) {
 	}
 
 	validator, err := validateProof(req, previous_pc, pubkey)
-	// secret  identity public_key platform
+
 	if err != nil {
 		errorResp(c, 400, xerrors.Errorf("%w", err))
 		return
 	}
-	if req.IsPrivacy {
+
+	if req.Extra.IsPrivacy {
+		// TODO secret  identity public_key platform
 		validator, err = encryptionValidator(&validator, req, pubkey)
 	}
 	// local DB just for update do not need to secret
@@ -70,13 +73,15 @@ func proofUpload(c *gin.Context) {
 		return
 	}
 
-	if req.Source == "data2cash" {
-		//update to ceramic TODO
-	} else {
+	switch req.Extra.Storage {
+	case string(types.StorageTypes.CERAMIC):
+		l.Println("is ceramic")
+	default:
 		if err = triggerArweave(model.MarshalPersona(pubkey)); err != nil {
 			// Do not errorResp here, since it is a tolerable error.
 			l.Warnf("error sending arweave upload message: %v", err)
 		}
+
 	}
 
 	c.JSON(http.StatusCreated, gin.H{})

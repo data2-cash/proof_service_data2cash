@@ -20,8 +20,6 @@ type ProofPayloadRequest struct {
 	Identity  string                   `json:"identity"`
 	PublicKey string                   `json:"public_key"`
 	Extra     ProofPayloadRequestExtra `json:"extra"`
-	IsPrivacy bool                     `json:"is_privacy"`
-	IsText    bool                     `form:"is_text,default=false"`
 }
 
 type ProofPayloadResponse struct {
@@ -32,6 +30,8 @@ type ProofPayloadResponse struct {
 	//UUID of this chain link. Send this UUID to POST /v1/proof as-is.
 	Uuid      string `json:"uuid"`
 	CreatedAt string `json:"created_at"`
+	IsPrivacy bool   `json:"is_privacy"`
+	IsTest    bool   `form:"is_test,default=false"`
 }
 
 type ProofPayloadRequestExtra struct {
@@ -57,13 +57,14 @@ func proofPayload(c *gin.Context) {
 		errorResp(c, http.StatusBadRequest, xerrors.New("public key not recognized"))
 		return
 	}
-
+	//get Data
 	previous_pc, err := model.ProofChainFindLatest(crypto.CompressedPubkeyHex(parsed_pubkey))
 	if err != nil {
 		errorResp(c, http.StatusInternalServerError, xerrors.New("previous proof not found"))
 		return
 	}
 
+	// deCrypto TODO
 	var previous_signature string
 	if previous_pc == nil {
 		previous_signature = ""
